@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NegociosAPI by Mondragón Foods</title>
+  <link rel="icon" type="image/svg+xml" href="negociosapi-logo.svg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/carbon-components@10/css/carbon-components.min.css" />
+  <style>
+    body {
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 3rem 1rem;
+    }
+
+    /* Caja centrada que contiene el título y el formulario */
+    .caja {
+      width: 100%;
+      max-width: 40rem;
+    }
+
+    main h1.bx--type-display-01 {
+      margin: 0 0 1rem;
+    }
+
+    main .bx--type-body-long-01 {
+      margin: 0 0 2rem;
+    }
+
+    /* Tarjeta que contiene el formulario */
+    .tarjeta {
+      background-color: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06);
+      padding: 2.5rem;
+    }
+
+    form .bx--form-item {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Botón de búsqueda a ancho completo */
+    #form-busqueda .bx--btn {
+      width: 100%;
+    }
+
+    /* Icono de búsqueda dentro del botón */
+    #form-busqueda .bx--btn svg {
+      margin-right: 0.5rem;
+    }
+
+    /* Sección de ejemplo con curl */
+    .tarjeta h2 {
+      margin: 0 0 1rem;
+    }
+
+    .tarjeta .descripcion {
+      margin: 0 0 1.5rem;
+    }
+
+    .tarjeta .bx--snippet {
+      margin-bottom: 1rem;
+    }
+
+    .tarjeta .bx--snippet:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Nota de fuente y aviso legal al pie */
+    .nota {
+      color: #525252;
+      padding: 1.5rem 1rem 2rem;
+      text-align: center;
+    }
+
+    .nota .fuente {
+      margin: 0 0 1rem;
+    }
+
+    .legal {
+      border-top: 1px solid #e0e0e0;
+      line-height: 1.5;
+      margin: 0 auto;
+      max-width: 40rem;
+      padding-top: 1rem;
+    }
+
+    .legal p {
+      font-size: 0.6875rem;
+      margin: 0;
+    }
+
+    .legal p + p {
+      margin-top: 0.75rem;
+    }
+
+    /* Pantallas pequeñas (Carbon sm: < 672px) */
+    @media (max-width: 41.99rem) {
+      main {
+        padding: 1.5rem 1rem;
+      }
+
+      .tarjeta {
+        padding: 1.5rem;
+      }
+
+      /* Reduce el título para que no desborde en móvil */
+      h1.bx--type-display-01 {
+        font-size: 2rem;
+        line-height: 1.2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="caja">
+      <h1 class="bx--type-display-01">NegociosAPI</h1>
+      <p class="bx--type-body-long-01">
+        Consulta establecimientos del Directorio Estadístico Nacional de Unidades
+        Económicas (DENUE) por estado, municipio o actividad.
+      </p>
+
+      <div class="tarjeta">
+        <form id="form-busqueda" novalidate>
+          <div class="bx--form-item">
+            <div class="bx--select">
+              <label for="select-entidad" class="bx--label">Estado</label>
+              <div class="bx--select-input__wrapper">
+                <select id="select-entidad" class="bx--select-input">
+                  <option class="bx--select-option" value="" selected>Todos los estados</option>
+                </select>
+                <svg class="bx--select__arrow" width="10" height="6" viewBox="0 0 10 6" fill-rule="evenodd" aria-hidden="true">
+                  <path d="M5 6L0 1.3 1.3 0 5 3.7 8.7 0 10 1.3z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bx--form-item">
+            <div class="bx--select">
+              <label for="select-municipio" class="bx--label">Municipio</label>
+              <div class="bx--select-input__wrapper">
+                <select id="select-municipio" class="bx--select-input" disabled>
+                  <option class="bx--select-option" value="" selected>Selecciona un estado primero</option>
+                </select>
+                <svg class="bx--select__arrow" width="10" height="6" viewBox="0 0 10 6" fill-rule="evenodd" aria-hidden="true">
+                  <path d="M5 6L0 1.3 1.3 0 5 3.7 8.7 0 10 1.3z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bx--form-item">
+            <label for="input-buscar" class="bx--label">Nombre o actividad</label>
+            <div id="wrapper-buscar" class="bx--text-input__field-wrapper">
+              <input
+                id="input-buscar"
+                class="bx--text-input"
+                type="text"
+                placeholder="Ej. farmacia, taller mecánico"
+              />
+              <svg
+                class="bx--text-input__invalid-icon"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill-rule="evenodd"
+                aria-hidden="true"
+                hidden
+              >
+                <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zM7 4h2v5H7V4zm0 7h2v2H7v-2z"></path>
+              </svg>
+              <div class="bx--form-requirement" id="requisito-buscar" aria-live="polite" hidden></div>
+            </div>
+          </div>
+
+          <div class="bx--form-item" style="width: 100%;max-width: 100% !important;">
+            <button type="submit" class="bx--btn bx--btn--primary bx--btn--md" style="width: 100%;max-width: 100% !important;">
+              <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <path d="M29,27.5859l-7.5521-7.5521a11.0177,11.0177,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path>
+              </svg>
+              Buscar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="tarjeta">
+        <h2 class="bx--type-heading-03">Uso con curl</h2>
+        <p class="descripcion">
+          La API acepta los parámetros <code>buscar</code>, <code>entidad</code> (2 dígitos) y
+          <code>municipio</code> (5 dígitos).
+        </p>
+
+        <div class="bx--snippet bx--snippet--multi" data-codigo>
+          <div class="bx--snippet-container">
+            <pre><code>curl "https://negociosapi.mondragonfoods.com/api/negocios?buscar=farmacia"</code></pre>
+          </div>
+          <button type="button" class="bx--copy-btn" data-copiar title="Copiar">
+            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path d="M28,10V28H10V10H28m0-2H10a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V10a2,2,0,0,0-2-2Z"></path><path d="M4,18H2A2,2,0,0,1,0,16V4A2,2,0,0,1,2,2H16a2,2,0,0,1,2,2V6H16V4H2V16H4Z"></path></svg>
+          </button>
+        </div>
+
+        <div class="bx--snippet bx--snippet--multi" data-codigo>
+          <div class="bx--snippet-container">
+            <pre><code>curl "https://negociosapi.mondragonfoods.com/api/negocios?buscar=taller&amp;entidad=18"</code></pre>
+          </div>
+          <button type="button" class="bx--copy-btn" data-copiar title="Copiar">
+            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path d="M28,10V28H10V10H28m0-2H10a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V10a2,2,0,0,0-2-2Z"></path><path d="M4,18H2A2,2,0,0,1,0,16V4A2,2,0,0,1,2,2H16a2,2,0,0,1,2,2V6H16V4H2V16H4Z"></path></svg>
+          </button>
+        </div>
+
+        <div class="bx--snippet bx--snippet--multi" data-codigo>
+          <div class="bx--snippet-container">
+            <pre><code>curl "https://negociosapi.mondragonfoods.com/api/negocios?municipio=18004"
+curl "https://negociosapi.mondragonfoods.com/api/negocios?municipio=18004&amp;buscar=restaurante"</code></pre>
+          </div>
+          <button type="button" class="bx--copy-btn" data-copiar title="Copiar">
+            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path d="M28,10V28H10V10H28m0-2H10a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V10a2,2,0,0,0-2-2Z"></path><path d="M4,18H2A2,2,0,0,1,0,16V4A2,2,0,0,1,2,2H16a2,2,0,0,1,2,2V6H16V4H2V16H4Z"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="nota">
+    <p class="bx--type-caption fuente">
+      Fuente: Directorio Estadístico Nacional de Unidades Económicas (DENUE), INEGI.
+    </p>
+
+    <div class="legal">
+      <p class="bx--type-caption">
+        © 2020–Presente Mondragón Foods S.A.S. Todos los derechos reservados.
+      </p>
+      <p class="bx--type-caption">
+        <strong>NegociosAPI</strong> es software privado de propiedad exclusiva de Mondragón Foods S.A.S.
+        El uso, reproducción, distribución, venta o explotación de este sistema sin el consentimiento
+        previo y por escrito mediante el contrato legal correspondiente está estrictamente prohibido y
+        constituye una violación de las leyes de propiedad intelectual en México y tratados internacionales.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // Catálogo de entidades federativas (clave INEGI de 2 dígitos).
+      var ENTIDADES = [
+        ["01", "Aguascalientes"],
+        ["02", "Baja California"],
+        ["03", "Baja California Sur"],
+        ["04", "Campeche"],
+        ["05", "Coahuila de Zaragoza"],
+        ["06", "Colima"],
+        ["07", "Chiapas"],
+        ["08", "Chihuahua"],
+        ["09", "Ciudad de México"],
+        ["10", "Durango"],
+        ["11", "Guanajuato"],
+        ["12", "Guerrero"],
+        ["13", "Hidalgo"],
+        ["14", "Jalisco"],
+        ["15", "México"],
+        ["16", "Michoacán de Ocampo"],
+        ["17", "Morelos"],
+        ["18", "Nayarit"],
+        ["19", "Nuevo León"],
+        ["20", "Oaxaca"],
+        ["21", "Puebla"],
+        ["22", "Querétaro"],
+        ["23", "Quintana Roo"],
+        ["24", "San Luis Potosí"],
+        ["25", "Sinaloa"],
+        ["26", "Sonora"],
+        ["27", "Tabasco"],
+        ["28", "Tamaulipas"],
+        ["29", "Tlaxcala"],
+        ["30", "Veracruz de Ignacio de la Llave"],
+        ["31", "Yucatán"],
+        ["32", "Zacatecas"]
+      ];
+
+      var selectEntidad = document.getElementById("select-entidad");
+      var selectMunicipio = document.getElementById("select-municipio");
+      var inputBuscar = document.getElementById("input-buscar");
+      var wrapperBuscar = document.getElementById("wrapper-buscar");
+      var requisitoBuscar = document.getElementById("requisito-buscar");
+      var form = document.getElementById("form-busqueda");
+      // Cache de municipios por entidad para evitar consultas repetidas.
+      var cacheMunicipios = {};
+      // Entidad de la última petición; descarta respuestas obsoletas (race condition).
+      var entidadSolicitada = "";
+
+      // Llena el select de entidades con el catálogo.
+      ENTIDADES.forEach(function (entidad) {
+        var opcion = document.createElement("option");
+        opcion.value = entidad[0];
+        opcion.textContent = entidad[1];
+        opcion.className = "bx--select-option";
+        selectEntidad.appendChild(opcion);
+      });
+
+      function reemplazarOpciones(select, opciones) {
+        select.innerHTML = "";
+        opciones.forEach(function (opcion) {
+          select.appendChild(opcion);
+        });
+      }
+
+      function opcionPlaceholder(texto) {
+        var opcion = document.createElement("option");
+        opcion.value = "";
+        opcion.textContent = texto;
+        opcion.className = "bx--select-option";
+        return opcion;
+      }
+
+      function cargarMunicipios(entidad) {
+        entidadSolicitada = entidad;
+
+        if (cacheMunicipios[entidad]) {
+          reemplazarOpciones(selectMunicipio, cacheMunicipios[entidad]);
+          selectMunicipio.disabled = false;
+          return;
+        }
+
+        selectMunicipio.disabled = true;
+        reemplazarOpciones(selectMunicipio, [opcionPlaceholder("Cargando municipios…")]);
+
+        fetch("https://gaia.inegi.org.mx/wscatgeo/v2/mgem/" + entidad)
+          .then(function (respuesta) {
+            if (!respuesta.ok) {
+              throw new Error("HTTP " + respuesta.status);
+            }
+            return respuesta.json();
+          })
+          .then(function (data) {
+            // Respuesta de una entidad ya no seleccionada: se ignora.
+            if (entidadSolicitada !== entidad) {
+              return;
+            }
+
+            var municipios = data && Array.isArray(data.datos) ? data.datos : [];
+            var opciones = [opcionPlaceholder("Todos los municipios")];
+
+            municipios.forEach(function (municipio) {
+              // Validación defensiva: solo agrega municipios con clave y nombre.
+              if (!municipio || !municipio.cvegeo || !municipio.nomgeo) {
+                return;
+              }
+              var opcion = document.createElement("option");
+              opcion.value = municipio.cvegeo;
+              opcion.textContent = municipio.nomgeo;
+              opcion.className = "bx--select-option";
+              opciones.push(opcion);
+            });
+
+            cacheMunicipios[entidad] = opciones;
+            reemplazarOpciones(selectMunicipio, opciones);
+            selectMunicipio.disabled = false;
+          })
+          .catch(function () {
+            // Solo informa del error si la entidad sigue seleccionada.
+            if (entidadSolicitada !== entidad) {
+              return;
+            }
+            reemplazarOpciones(selectMunicipio, [
+              opcionPlaceholder("No se pudieron cargar los municipios")
+            ]);
+            selectMunicipio.disabled = true;
+          });
+      }
+
+      selectEntidad.addEventListener("change", function () {
+        if (selectEntidad.value) {
+          cargarMunicipios(selectEntidad.value);
+        } else {
+          selectMunicipio.disabled = true;
+          reemplazarOpciones(selectMunicipio, [
+            opcionPlaceholder("Selecciona un estado primero")
+          ]);
+        }
+      });
+
+      function mostrarRequisito(mensaje) {
+        requisitoBuscar.textContent = mensaje;
+        requisitoBuscar.hidden = false;
+        wrapperBuscar.setAttribute("data-invalid", "");
+        inputBuscar.classList.add("bx--text-input--invalid");
+        inputBuscar.setAttribute("aria-invalid", "true");
+        wrapperBuscar.querySelector(".bx--text-input__invalid-icon").hidden = false;
+      }
+
+      function ocultarRequisito() {
+        requisitoBuscar.hidden = true;
+        wrapperBuscar.removeAttribute("data-invalid");
+        inputBuscar.classList.remove("bx--text-input--invalid");
+        inputBuscar.removeAttribute("aria-invalid");
+        wrapperBuscar.querySelector(".bx--text-input__invalid-icon").hidden = true;
+      }
+
+      inputBuscar.addEventListener("input", ocultarRequisito);
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        var buscar = inputBuscar.value.trim();
+        var entidad = selectEntidad.value;
+        var municipio = selectMunicipio.value;
+
+        if (!municipio && !buscar) {
+          mostrarRequisito("Elige un municipio o escribe un término de búsqueda.");
+          return;
+        }
+
+        var params = new URLSearchParams();
+        if (municipio) {
+          params.set("municipio", municipio);
+          if (buscar) {
+            params.set("buscar", buscar);
+          }
+        } else {
+          params.set("buscar", buscar);
+          if (entidad) {
+            params.set("entidad", entidad);
+          }
+        }
+
+        var url = new URL("api/negocios", window.location.href);
+        url.search = params.toString();
+        window.location.href = url.href;
+      });
+
+      // Copiar ejemplos de curl al portapapeles.
+      document.querySelectorAll("[data-copiar]").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          var contenedor = boton.closest("[data-codigo]");
+          var pre = contenedor ? contenedor.querySelector("pre") : null;
+          if (!pre) {
+            return;
+          }
+
+          var texto = pre.textContent.trim();
+          var original = boton.innerHTML;
+
+          function copiar() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(texto).catch(function () {});
+            } else {
+              // Fallback para navegadores sin API de portapapeles.
+              var textarea = document.createElement("textarea");
+              textarea.value = texto;
+              textarea.style.position = "fixed";
+              textarea.style.opacity = "0";
+              document.body.appendChild(textarea);
+              textarea.select();
+              try {
+                document.execCommand("copy");
+              } catch (e) {}
+              document.body.removeChild(textarea);
+            }
+          }
+
+          copiar();
+
+          // Retroalimentación visual temporal (icono de verificación).
+          boton.innerHTML = '<svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M14 21.414l-4.707-4.707 1.414-1.414L14 18.586l7.293-7.293 1.414 1.414z"></path></svg>';
+          boton.setAttribute("title", "Copiado");
+          setTimeout(function () {
+            boton.innerHTML = original;
+            boton.setAttribute("title", "Copiar");
+          }, 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
